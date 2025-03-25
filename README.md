@@ -19,6 +19,14 @@ To use DeepGDel, you need the following core environment setup with the recommen
 
 Additional auxiliary Python packages (e.g., pandas, numpy) are specified in the source code.
 
+You can also install the required dependencies using pip.
+
+```
+pip install -r requirements.txt
+```
+
+If you're using other than CUDA 11.7, you may need to install PyTorch for the proper version of CUDA. See [instructions](https://pytorch.org/get-started/locally/) for more details.
+
 ## Datasets and Data Download
 
 The maximal gene deletion strategy data (specifying a metabolic model and a target metabolite) can be downloaded from [MetNetComp](https://metnetcomp.github.io/database1/indexFiles/index.html) via the following URL:
