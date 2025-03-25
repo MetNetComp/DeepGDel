@@ -7,7 +7,7 @@ DeepGDel consists of three neural network-based modules: (1) **Meta-M**, which s
 
 DeepGDel Framework Overview|
 :-------------------------:|
-| <img width="1000" alt="image" src="https://github.com/yangziwei96/DeepGDel/blob/main/DeepGDel.png">
+| <img width="1000" alt="image" src="https://github.com/MetNetComp/DeepGDel/blob/main/DeepGDel.png">
 
 ## Necessary Environments
 
