@@ -45,7 +45,7 @@ The SMILES data corresponding to each metabolite in the three studied metabolic 
 Note: Please unzip the individual CSV file `Data/<model>/Label/<metabolite_name>.csv` from `Data/<model>/Label/Label.zip` using the following command:
 
 ```
-unzip Data/e_coli_core/Label/Label.zip -d Data/e_coli_core/Label/;
+unzip Data/<model>/Label/Label.zip -d Data/<model>/Label/;
 ```
 
 Similarly, unzip the individual CSV file for amino acid data `Data/<model>/Gene_AA/<gene_name>.csv`, from `Data/<model>/Gene_AA/Gene_AA.zip` using the following command:
