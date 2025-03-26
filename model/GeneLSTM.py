@@ -3,6 +3,33 @@ import torch.nn as nn
 
 # Gene sequence LSTM model
 class GeneLSTM(nn.Module):
+"""
+GeneLSTM: A sequence-to-sequence model for processing gene sequences using LSTM.
+
+This module consists of:
+- Embedding Layer: Converts input indices into dense vector representations.
+- LSTM Encoder: Captures temporal dependencies from the embedded sequences.
+- Layer Normalization: Stabilizes LSTM outputs for improved generalization.
+- Mean Pooling & Fully Connected Layer: Summarizes sequence features.
+- LSTM Decoder: Reconstructs the original input sequence.
+- Output Projection: Maps decoder outputs back to the vocabulary size.
+
+Args:
+    vocab_size (int): Number of unique tokens in the vocabulary.
+    vocab_embedding_dim (int): Size of embedding vectors.
+    hidden_dim (int): Hidden dimension of the LSTM layers.
+"""
+"""
+Forward pass for GeneLSTM.
+    
+Args:
+    x (Tensor): Input tensor of shape (batch_size, seq_length),
+                where each element represents a token index.
+    
+Returns:
+    output (Tensor): Encoded feature representation of shape (batch_size, hidden_dim).
+    reconstructed_input_indices (Tensor): Predicted sequence of shape (batch_size, seq_length).
+"""
     def __init__(self, vocab_size, vocab_embedding_dim, hidden_dim):
         super(GeneLSTM, self).__init__()
         self.embedding = nn.Embedding(vocab_size, vocab_embedding_dim)
