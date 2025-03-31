@@ -119,7 +119,7 @@ python3 quick_run_baseline.py;
 ### Quick Run Reports and Outputs
 
 The quick run scripts above generate a performance report, i.e., **DeepGDel Report** or **Baseline Report**, including four performance metrics: Overall Accuracy, Macro-Averaged Precision, Macro-Averaged Recall, and Macro-Averaged F1-score.
-The DeepGDel test script additionally saves the resulting gene deletion strategies as a CSV file in the following directory: `Data/<model>/Results/all_metabolites_predictions_temp.csv`.
+The DeepGDel test script additionally saves the resulting gene deletion strategies for e_coli_core as a CSV file in the following directory: `Data/e_coli_core/Results/all_metabolites_predictions_temp.csv`.
 
 ## Complementary: Learning Model Training and Ablations
 
