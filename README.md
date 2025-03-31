@@ -90,9 +90,18 @@ It consists of the following key components:
 
 For more detailed information, please refer to the **comments within the source code**.
 
+## Output Details
+
+The output gene deletion strategies are saved as a CSV file in the following directory: `Data/<model>/Results/all_metabolites_predictions.csv`.
+
+The output CSV represents a **Metabolite × Gene** matrix, where:
+
+- The first column lists the target metabolites.
+- The remaining columns represent a binary (0/1) vector indicating which genes should be deleted:
+  - `0` → Gene **to be deleted**.
+  - `1` → Gene **to remain**.
 
 ## Example Code for Quick Run
-
 
 We provide two scripts to run example tests on the e_coli_core model with DeepGDel and the baseline method:
 
@@ -107,18 +116,11 @@ python3 quick_run_DeepGDel.py;
 ```
 python3 quick_run_baseline.py;
 ```
+### Quick Run Reports and Outputs
 
-## Output Details
+The quick run scripts above generate a performance report, i.e., **DeepGDel Report** or **Baseline Report**, including four performance metrics: Overall Accuracy, Macro-Averaged Precision, Macro-Averaged Recall, and Macro-Averaged F1-score.
+The DeepGDel test script additionally saves the resulting gene deletion strategies as a CSV file in the following directory: `Data/<model>/Results/all_metabolites_predictions_temp.csv`.
 
-The output gene deletion strategies are saved as CSV files in the following directory: `Data/<model>/Results/all_metabolites_predictions.csv`.
-
-The output CSV represents a **Metabolite × Gene** matrix, where:
-
-- The first column lists the target metabolites.
-- The remaining columns represent a binary (0/1) vector indicating which genes should be deleted:
-  - `0` → Gene **to be deleted**.
-  - `1` → Gene **to remain**.
- 
 ## Complementary: Learning Model Training and Ablations
 
 ### (1) Learning Model Training
