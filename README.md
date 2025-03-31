@@ -160,7 +160,7 @@ Prevents a PyTorch model’s parameters from being updated during training by fr
 
 - model (nn.Module): The PyTorch model whose parameters will be frozen.
 
-2. Function `is_model_frozen(model)(model)`:
+2. Function `is_model_frozen(model)`:
 
 Checks whether all parameters in a PyTorch model are frozen, meaning none of them require gradient updates.
 
