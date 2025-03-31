@@ -92,7 +92,7 @@ For more detailed information, please refer to the **comments within the source 
 
 ## Output Details
 
-The output gene deletion strategies are saved as a CSV file in the following directory: `Data/<model>/Results/all_metabolites_predictions.csv`.
+DeepGDel saves the output gene deletion strategies as a CSV file in the following directory: `Data/<model>/Results/all_metabolites_predictions.csv`.
 
 The output CSV represents a **Metabolite × Gene** matrix, where:
 
