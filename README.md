@@ -103,7 +103,7 @@ The output CSV represents a **Metabolite × Gene** matrix, where:
 
 ## Example Code for Quick Run
 
-### Quick Run on e_coli_core model
+### Quick Run on e_coli_core Model
 
 We provide two scripts to run example tests on the e_coli_core model with DeepGDel and the baseline method:
 
