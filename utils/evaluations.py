@@ -306,11 +306,12 @@ def calculate_metrics_for_val_metabolites(model, val_metabolites, metabolite_nam
     average_f1_score = np.mean([metrics['f1_score'] for metrics in metabolite_metrics])
     
     # Print overall results
-    print()
+    print("====================== DeepGDel Report ======================")
     print(f"Overall Accuracy: {overall_accuracy:.2f}%")
     print(f"Macro-Averaged Precision: {average_precision:.2f}%")
     print(f"Macro-Averaged Recall: {average_recall:.2f}%")
     print(f"Macro-Averaged F1 Score: {average_f1_score:.2f}%")
+    print()
 
 def predict_and_save_all_results(
     model, val_metabolites, metabolite_names, gene_sequences, 
