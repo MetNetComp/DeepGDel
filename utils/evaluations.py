@@ -276,11 +276,11 @@ def calculate_metrics_for_val_metabolites(model, val_metabolites, metabolite_nam
             
             # Print results for each metabolite
             print(f"Metabolite: {metabolite_name}")
-            print(f"  Number of Non-fixed Genes: {len(gene_names)}")
+            %print(f"  Number of Non-fixed Genes: {len(gene_names)}")
             # Print first 10 labels (true and predicted)
             print(f"  First 10 True Gene Status: {true_labels[:10]}")
             print(f"  First 10 Predicted Gene Status: {predicted_deletions[:10]}")
-            print(f"  Correct Predictions: {num_correct}")
+            %print(f"  Correct Predictions: {num_correct}")
             print(f"  Accuracy: {accuracy:.2f}%")
             print(f"  Precision: {avg_precision:.2f}% (Macro-Averaged)")
             print(f"  Recall: {avg_recall:.2f}% (Macro-Averaged)")
