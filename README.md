@@ -119,7 +119,7 @@ python3 quick_run_DeepGDel.py;
 python3 quick_run_baseline.py;
 ```
 
-Note: Please unzip the data before testing using the following commands:
+Note: Please unzip the e_coli_core data before testing using the following commands:
 
 ```
 unzip Data/e_coli_core/Gene_AA/Gene_AA.zip -d Data/e_coli_core/Gene_AA/;
