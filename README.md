@@ -118,6 +118,14 @@ python3 quick_run_DeepGDel.py;
 ```
 python3 quick_run_baseline.py;
 ```
+
+Note: Please unzip the data before testing using the following commands:
+
+```
+unzip Data/e_coli_core/Gene_AA/Gene_AA.zip -d Data/e_coli_core/Gene_AA/;
+unzip Data/e_coli_core/Label/Label.zip -d Data/e_coli_core/Label/;
+```
+
 ### Quick Run Reports and Outputs
 
 The quick run scripts above generate a performance report, i.e., **DeepGDel Report** or **Baseline Report**, including four performance metrics: Overall Accuracy, Macro-Averaged Precision, Macro-Averaged Recall, and Macro-Averaged F1-score.
