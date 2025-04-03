@@ -138,11 +138,11 @@ def main():
             genes_to_exclude.append(gene)
     
     # Print genes to exclude
-    print(f"\nGenes to exclude during ACU calculation: {len(genes_to_exclude)}")
-    print(f"Number of genes with 100% deletion (0): {len(genes_100_percent_0)}")
-    print(f"Number of genes with nearly 100% deletion (0): {len(genes_close_to_100_percent_0)}")
-    print(f"Number of genes with 100% non-deletion (1): {len(genes_100_percent_1)}")
-    print(f"Number of genes with nearly 100% non-deletion (1): {len(genes_close_to_100_percent_1)}")
+    #print(f"\nGenes to exclude during evaluation: {len(genes_to_exclude)}")
+    #print(f"Number of genes with 100% deletion (0): {len(genes_100_percent_0)}")
+    #print(f"Number of genes with nearly 100% deletion (0): {len(genes_close_to_100_percent_0)}")
+    #print(f"Number of genes with 100% non-deletion (1): {len(genes_100_percent_1)}")
+    #print(f"Number of genes with nearly 100% non-deletion (1): {len(genes_close_to_100_percent_1)}")
     
     # Filter data based on metabolite split for training
     X_genes_train = []
