@@ -110,7 +110,7 @@ We provide two scripts to run example tests on the e_coli_core model with DeepGD
 -  `quick_run_DeepGDel.py`: predicting gene deletion strategies with DeepGDel on e_coli_core model.
 -  `quick_run_baseline.py`: predicting gene deletion strategies with the baseline method on e_coli_core model.
 
-You can run the test scripts using the following commands:
+You can run the test scripts (which default to using the CPU) using the following commands:
 
 ```
 python3 quick_run_DeepGDel.py;
