@@ -1,4 +1,4 @@
-# DeepGDel: Gene Deletion Strategy Prediction Framework for Growth-Coupled Production in Genome-Scale Metabolic Models
+# DeepGDel: Deep Learning-based Gene Deletion Prediction Framework for Growth-Coupled Production in Genome-Scale Metabolic Models
 
 ## About DeepGDel
 DeepGDel is a framework for predicting gene deletion strategies for growth-coupled production in genome-scale metabolic models.
