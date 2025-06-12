@@ -7,6 +7,7 @@ import csv
 from collections import defaultdict
 import time
 import os
+from sklearn.metrics import roc_auc_score
 
 def predict_gene_deletions_for_metabolite(model, metabolite_name, metabolite_names, gene_sequences, smiles_features, relationships, device, genes_to_exclude):
     # Find the index of the metabolite name
@@ -60,71 +61,124 @@ def predict_gene_deletions_for_metabolite(model, metabolite_name, metabolite_nam
 
 def run_baseline(CBM='e_coli_core', M=100, relationship_folder_path=''):
     """
-    Runs a baseline method on the gene-deletion dataset.
+    Runs a baseline method on the gene-deletion dataset with balanced training data.
     
     Parameters:
     CBM (str): The model type ('e_coli_core', 'iMM904', or 'iML1515').
     M (int): Number of random baseline runs.
     """
-    
-    all_accuracies, all_precisions, all_recalls, all_f1_scores = [], [], [], []
-    
-    for _ in range(M):
+    import os
+    import numpy as np
+    import pandas as pd
+
+    all_accuracies, all_precisions, all_recalls, all_f1_scores, all_aucs = [], [], [], [], []
+    last_train_0_count, last_train_1_count = 0, 0  # Save last training class counts
+
+    for run_id in range(M):
         csv_files = [file for file in os.listdir(relationship_folder_path) if file.endswith('.csv')]
         num_train_files = int(0.2 * len(csv_files))
         train_files = np.random.choice(csv_files, size=num_train_files, replace=False)
         train_file_names = [os.path.splitext(file)[0] for file in train_files]
         remaining_file_names = [os.path.splitext(file)[0] for file in csv_files if file not in train_files]
-        
+
         gene_count, gene_total, unique_genes = {}, {}, set()
-        
+        all_train_rows = []
+
+        # Load and balance data within each gene
         for filename in train_files:
             df = pd.read_csv(os.path.join(relationship_folder_path, filename))
-            for _, row in df.iterrows():
-                gene, deleted = row['Gene'], row['Deleted']
-                if gene not in gene_count:
-                    gene_count[gene] = {'0': 0, '1': 0}
-                    gene_total[gene] = 0
-                gene_count[gene][str(deleted)] += 1
-                gene_total[gene] += 1
-                unique_genes.add(gene)
-        
+            for gene, group in df.groupby('Gene'):
+                count_0 = (group['Deleted'] == 0).sum()
+                count_1 = (group['Deleted'] == 1).sum()
+                if count_0 == 0 or count_1 == 0:
+                    all_train_rows.append(group)
+                else:
+                    min_count = min(count_0, count_1)
+                    df_0 = group[group['Deleted'] == 0].sample(min_count, random_state=42)
+                    df_1 = group[group['Deleted'] == 1].sample(min_count, random_state=42)
+                    all_train_rows.append(pd.concat([df_0, df_1]))
+
+        # Concatenate all and strictly balance global class distribution
+        combined_train_df = pd.concat(all_train_rows)
+        df_0_all = combined_train_df[combined_train_df['Deleted'] == 0]
+        df_1_all = combined_train_df[combined_train_df['Deleted'] == 1]
+        min_class_size = min(len(df_0_all), len(df_1_all))
+        balanced_train_df = pd.concat([
+            df_0_all.sample(min_class_size, random_state=42),
+            df_1_all.sample(min_class_size, random_state=42)
+        ])
+
+        # Update last class distribution
+        if run_id == M - 1:
+            last_train_0_count = len(balanced_train_df[balanced_train_df['Deleted'] == 0])
+            last_train_1_count = len(balanced_train_df[balanced_train_df['Deleted'] == 1])
+
+        # Rebuild gene_count and gene_total
+        gene_count, gene_total = {}, {}
+        for _, row in balanced_train_df.iterrows():
+            gene, deleted = row['Gene'], row['Deleted']
+            if gene not in gene_count:
+                gene_count[gene] = {'0': 0, '1': 0}
+                gene_total[gene] = 0
+            gene_count[gene][str(deleted)] += 1
+            gene_total[gene] += 1
+            unique_genes.add(gene)
+
         bound = 0.9
-        genes_to_exclude = [gene for gene in gene_count if gene_count[gene]['0'] / gene_total[gene] >= bound**3 or gene_count[gene]['1'] / gene_total[gene] >= bound**3]
-        
-        accuracies, precisions, recalls, f1_scores = [], [], [], []
-        
+        genes_to_exclude = [
+            gene for gene in gene_count
+            if gene_count[gene]['0'] / gene_total[gene] >= bound**4 or gene_count[gene]['1'] / gene_total[gene] >= bound**4
+        ]
+
+        accuracies, precisions, recalls, f1_scores, aucs = [], [], [], [], []
         for filename in remaining_file_names:
             df = pd.read_csv(os.path.join(relationship_folder_path, f"{filename}.csv"))
             filtered_df = df[~df['Gene'].isin(genes_to_exclude)]
             if filtered_df.empty:
                 continue
             true_labels = filtered_df['Deleted'].values
-            predicted_labels = filtered_df['Gene'].apply(lambda gene: 0 if gene_count[gene]['0'] / gene_total[gene] > 0.5 else 1).values
-            
-            TP, TN = np.sum((predicted_labels == 1) & (true_labels == 1)), np.sum((predicted_labels == 0) & (true_labels == 0))
-            FP, FN = np.sum((predicted_labels == 1) & (true_labels == 0)), np.sum((predicted_labels == 0) & (true_labels == 1))
-            
+            predicted_scores = filtered_df['Gene'].apply(
+                lambda gene: gene_count[gene]['1'] / gene_total[gene] if gene in gene_count else 0.5
+            ).values
+            predicted_labels = (predicted_scores > 0.5).astype(int)
+
+            TP = np.sum((predicted_labels == 1) & (true_labels == 1))
+            TN = np.sum((predicted_labels == 0) & (true_labels == 0))
+            FP = np.sum((predicted_labels == 1) & (true_labels == 0))
+            FN = np.sum((predicted_labels == 0) & (true_labels == 1))
+
             accuracy = ((TP + TN) / (TP + TN + FP + FN)) * 100 if (TP + TN + FP + FN) > 0 else 0
             precision = (TP / (TP + FP)) * 100 if (TP + FP) > 0 else 0
             recall = (TP / (TP + FN)) * 100 if (TP + FN) > 0 else 0
             f1 = (2 * precision * recall / (precision + recall)) if (precision + recall) > 0 else 0
-            
+
+            try:
+                auc = roc_auc_score(true_labels, predicted_scores) * 100
+            except:
+                auc = 0  # fallback in case only one class is present
+
             accuracies.append(accuracy)
             precisions.append(precision)
             recalls.append(recall)
             f1_scores.append(f1)
-        
+            aucs.append(auc)
+
         all_accuracies.append(np.mean(accuracies) if accuracies else 0)
         all_precisions.append(np.mean(precisions) if precisions else 0)
         all_recalls.append(np.mean(recalls) if recalls else 0)
         all_f1_scores.append(np.mean(f1_scores) if f1_scores else 0)
-    
-    print("====================== Baseline Report ======================")
+        all_aucs.append(np.mean(aucs) if aucs else 0)
+
+    print("\n======== Balanced training dataset class distribution =======")
+    print(f" Deleted (0)      = {last_train_0_count}")
+    print(f" Non-deleted (1)  = {last_train_1_count}")
+    print("\n====================== Baseline Report ======================")
     print(f"Overall Accuracy: {np.mean(all_accuracies):.2f}% ± {np.std(all_accuracies):.2f}")
     print(f"Macro-Averaged Precision: {np.mean(all_precisions):.2f}% ± {np.std(all_precisions):.2f}")
     print(f"Macro-Averaged Recall: {np.mean(all_recalls):.2f}% ± {np.std(all_recalls):.2f}")
     print(f"Macro-Averaged F1 Score: {np.mean(all_f1_scores):.2f}% ± {np.std(all_f1_scores):.2f}")
+    print(f"Macro-Averaged AUC: {np.mean(all_aucs):.2f}% ± {np.std(all_aucs):.2f}")
+
 
 def print_predicted_gene_deletions(gene_names, predicted_deletions, predicted_probs, true_labels, metabolite_name):
     # Print predictions
@@ -211,26 +265,24 @@ def print_prediction_errors(errors):
 def calculate_metrics_for_val_metabolites(model, val_metabolites, metabolite_names, gene_sequences, smiles_features, relationships, device, genes_to_exclude):
     total_correct = 0
     total_genes = 0
-    total_true_positive = [0, 0]  # For classes 0 and 1
-    total_false_positive = [0, 0]  # For classes 0 and 1
-    total_true_negative = [0, 0]  # For classes 0 and 1
-    total_false_negative = [0, 0]  # For classes 0 and 1
-    
+    total_true_positive = [0, 0]
+    total_false_positive = [0, 0]
+    total_true_negative = [0, 0]
+    total_false_negative = [0, 0]
+
     metabolite_metrics = []
-    
+
     for metabolite_name in val_metabolites:
         gene_names, predicted_deletions, predicted_probs, true_labels = predict_gene_deletions_for_metabolite(
             model, metabolite_name, metabolite_names, gene_sequences, smiles_features, relationships, device, genes_to_exclude
         )
         
-        if len(gene_names) > 0:  # Ensure there are genes to evaluate
-            # Calculate Accuracy
-            num_correct = np.sum(predicted_deletions == true_labels)  # Correct predictions
+        if len(gene_names) > 0:
+            num_correct = np.sum(predicted_deletions == true_labels)
             accuracy = (num_correct / len(gene_names)) * 100
             total_correct += num_correct
             total_genes += len(gene_names)
 
-            # Calculate True Positives, False Positives, True Negatives, and False Negatives for each class
             true_positive = [0, 0]
             false_positive = [0, 0]
             true_negative = [0, 0]
@@ -241,76 +293,71 @@ def calculate_metrics_for_val_metabolites(model, val_metabolites, metabolite_nam
                 false_positive[label] = np.sum((predicted_deletions == label) & (true_labels != label))
                 true_negative[label] = np.sum((predicted_deletions != label) & (true_labels != label))
                 false_negative[label] = np.sum((predicted_deletions != label) & (true_labels == label))
-                
+
                 total_true_positive[label] += true_positive[label]
                 total_false_positive[label] += false_positive[label]
                 total_true_negative[label] += true_negative[label]
                 total_false_negative[label] += false_negative[label]
-            
-            # Calculate Precision, Recall, and F1 Score for each class
-            precision = []
-            recall = []
-            f1_score = []
-            
+
+            precision, recall, f1_score = [], [], []
             for label in [0, 1]:
                 precision_val = (true_positive[label] / (true_positive[label] + false_positive[label]) * 100) if (true_positive[label] + false_positive[label]) > 0 else 0.0
                 recall_val = (true_positive[label] / (true_positive[label] + false_negative[label]) * 100) if (true_positive[label] + false_negative[label]) > 0 else 0.0
                 f1_score_val = (2 * precision_val * recall_val) / (precision_val + recall_val) if (precision_val + recall_val) > 0 else 0.0
-                
                 precision.append(precision_val)
                 recall.append(recall_val)
                 f1_score.append(f1_score_val)
-            
-            # Macro-Averaged Metrics
+
             avg_precision = np.mean(precision)
             avg_recall = np.mean(recall)
             avg_f1_score = np.mean(f1_score)
-            
-            # Store metrics for each metabolite
+
+            # Compute AUC
+            try:
+                auc = roc_auc_score(true_labels, predicted_probs) * 100  # Prob of class 1
+            except ValueError:
+                auc = 0.0  # If only one class present in true_labels
+
             metabolite_metrics.append({
                 'accuracy': accuracy,
                 'precision': avg_precision,
                 'recall': avg_recall,
-                'f1_score': avg_f1_score
+                'f1_score': avg_f1_score,
+                'auc': auc
             })
-            
-            # Print results for each metabolite
+
             print(f"Metabolite: {metabolite_name}")
-            #print(f"  Number of Non-fixed Genes: {len(gene_names)}")
-            # Print first 10 labels (true and predicted)
             print(f"  First 10 True Gene Status: {true_labels[:10]}")
             print(f"  First 10 Predicted Gene Status: {predicted_deletions[:10]}")
-            #print(f"  Correct Predictions: {num_correct}")
             print(f"  Accuracy: {accuracy:.2f}%")
             print(f"  Precision: {avg_precision:.2f}% (Macro-Averaged)")
             print(f"  Recall: {avg_recall:.2f}% (Macro-Averaged)")
             print(f"  F1 Score: {avg_f1_score:.2f}% (Macro-Averaged)")
+            print(f"  AUC: {auc:.2f}%")
             print()
 
-    # Calculate overall metrics across all validation metabolites
     overall_accuracy = (total_correct / total_genes) * 100 if total_genes > 0 else 0.0
-    
-    # Micro-Averaged Metrics
-    total_true_positive_sum = np.sum(total_true_positive)
-    total_false_positive_sum = np.sum(total_false_positive)
-    total_true_negative_sum = np.sum(total_true_negative)
-    total_false_negative_sum = np.sum(total_false_negative)
-    
-    micro_precision = (total_true_positive_sum / (total_true_positive_sum + total_false_positive_sum) * 100) if (total_true_positive_sum + total_false_positive_sum) > 0 else 0.0
-    micro_recall = (total_true_positive_sum / (total_true_positive_sum + total_false_negative_sum) * 100) if (total_true_positive_sum + total_false_negative_sum) > 0 else 0.0
+
+    total_tp_sum = np.sum(total_true_positive)
+    total_fp_sum = np.sum(total_false_positive)
+    total_fn_sum = np.sum(total_false_negative)
+
+    micro_precision = (total_tp_sum / (total_tp_sum + total_fp_sum) * 100) if (total_tp_sum + total_fp_sum) > 0 else 0.0
+    micro_recall = (total_tp_sum / (total_tp_sum + total_fn_sum) * 100) if (total_tp_sum + total_fn_sum) > 0 else 0.0
     micro_f1_score = (2 * micro_precision * micro_recall) / (micro_precision + micro_recall) if (micro_precision + micro_recall) > 0 else 0.0
-    
-    # Average the metrics across all metabolites (Macro-Averaged)
+
     average_precision = np.mean([metrics['precision'] for metrics in metabolite_metrics])
     average_recall = np.mean([metrics['recall'] for metrics in metabolite_metrics])
     average_f1_score = np.mean([metrics['f1_score'] for metrics in metabolite_metrics])
-    
-    # Print overall results
+    average_auc = np.mean([metrics['auc'] for metrics in metabolite_metrics])
+
+    print()
     print("====================== DeepGDel Report ======================")
     print(f"Overall Accuracy: {overall_accuracy:.2f}%")
     print(f"Macro-Averaged Precision: {average_precision:.2f}%")
     print(f"Macro-Averaged Recall: {average_recall:.2f}%")
     print(f"Macro-Averaged F1 Score: {average_f1_score:.2f}%")
+    print(f"Macro-Averaged AUC: {average_auc:.2f}%")
     print()
 
 def predict_and_save_all_results(
