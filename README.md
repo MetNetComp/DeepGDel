@@ -131,9 +131,22 @@ unzip Data/e_coli_core/Label/Label.zip -d Data/e_coli_core/Label/;
 The quick run scripts above generate a performance report, i.e., **DeepGDel Report** or **Baseline Report**, including four performance metrics: Overall Accuracy, Macro-Averaged Precision, Macro-Averaged Recall, and Macro-Averaged F1-score.
 The DeepGDel test script additionally saves the resulting gene deletion strategies for e_coli_core as a CSV file in the following directory: `Data/e_coli_core/Results/all_metabolites_predictions_temp.csv`.
 
-DeepGDel Framework Overview|
+
+## Visualization of Feature Representations Using PCA and t-SNE
+
+The figure below shows dimensionality reduction results for the original input features and the DeepGDel learned latent representations.
+
+- **Top row:** 2D PCA projections
+- **Bottom row:** 2D t-SNE projections
+- Points are colored by deletion status:
+  - **Blue:** Deleted (label = 0)
+  - **Red:** Non-deleted (label = 1)
+
+This visualization qualitatively demonstrates that the learned latent features separate deletion states better than the original features.
+
+Visualization of Representations|
 :-------------------------:|
-| <img width="1000" alt="image" src="https://github.com/MetNetComp/DeepGDel/blob/main/DeepGDel.png">
+| <img width="1000" alt="image" src="https://github.com/MetNetComp/DeepGDel/blob/main/feature.png">
 
 
 ## Complementary: Learning Model Training and Ablations
