@@ -144,7 +144,7 @@ The figure below shows dimensionality reduction results for the original input f
 
 This visualization qualitatively demonstrates that the learned latent features separate deletion states better than the original features.
 
-Visualization of Representations|
+Visualization of Representations (e_coli_core)|
 :-------------------------:|
 | <img width="1000" alt="image" src="https://github.com/MetNetComp/DeepGDel/blob/main/feature.png">
 
