@@ -105,10 +105,11 @@ The output CSV represents a **Metabolite × Gene** matrix, where:
 
 ### Quick Run on e_coli_core Model
 
-We provide two scripts to run example tests on the e_coli_core model with DeepGDel and the baseline method:
+We provide three scripts to run example tests on the e_coli_core model with DeepGDel and two baseline methods:
 
 -  `quick_run_DeepGDel.py`: predicting gene deletion strategies with DeepGDel on e_coli_core model.
--  `quick_run_baseline.py`: predicting gene deletion strategies with the baseline method on e_coli_core model.
+-  `quick_run_baseline_BPM.py`: predicting gene deletion strategies with the baseline method (BPM) on e_coli_core model.
+-  `quick_run_baseline_DNN.py`: predicting gene deletion strategies with the baseline method (DNN) on e_coli_core model.
 
 You can run the test scripts (which default to running computations on the CPU) using the following commands:
 
@@ -116,7 +117,10 @@ You can run the test scripts (which default to running computations on the CPU) 
 python3 quick_run_DeepGDel.py;
 ```
 ```
-python3 quick_run_baseline.py;
+python3 quick_run_baseline_BPM.py;
+```
+```
+python3 quick_run_baseline_DNN.py;
 ```
 
 Note: Please unzip the e_coli_core data before testing using the following commands:
@@ -128,7 +132,7 @@ unzip Data/e_coli_core/Label/Label.zip -d Data/e_coli_core/Label/;
 
 ### Quick Run Reports and Outputs
 
-The quick run scripts above generate a performance report, i.e., **DeepGDel Report** or **Baseline Report**, including four performance metrics: Overall Accuracy, Macro-Averaged Precision, Macro-Averaged Recall, and Macro-Averaged F1-score.
+The quick run scripts above generate a performance report, i.e., **DeepGDel Report** or **Baseline Report**, including five performance metrics: Overall Accuracy, Macro-Averaged Precision, Macro-Averaged Recall, Macro-Averaged F1-score, and AUC.
 The DeepGDel test script additionally saves the resulting gene deletion strategies for e_coli_core as a CSV file in the following directory: `Data/e_coli_core/Results/all_metabolites_predictions_temp.csv`.
 
 
