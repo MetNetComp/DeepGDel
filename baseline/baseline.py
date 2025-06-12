@@ -113,9 +113,9 @@ def run_baseline(CBM='e_coli_core', M=100, relationship_folder_path=''):
         all_f1_scores.append(np.mean(f1_scores) if f1_scores else 0)
         all_aucs.append(np.mean(aucs) if aucs else 0)
 
-    print("\n======== Balanced training dataset class distribution =======")
-    print(f" Deleted (0)      = {last_train_0_count}")
-    print(f" Non-deleted (1)  = {last_train_1_count}")
+    # print("\n======== Balanced training dataset class distribution =======")
+    # print(f" Deleted (0)      = {last_train_0_count}")
+    # print(f" Non-deleted (1)  = {last_train_1_count}")
     print("\n====================== Baseline Report ======================")
     print(f"Overall Accuracy: {np.mean(all_accuracies):.2f}% ± {np.std(all_accuracies):.2f}")
     print(f"Macro-Averaged Precision: {np.mean(all_precisions):.2f}% ± {np.std(all_precisions):.2f}")
