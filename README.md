@@ -3,6 +3,7 @@
 ## About DeepGDel
 DeepGDel is a framework for predicting gene deletion strategies for growth-coupled production in genome-scale metabolic models.
 It enables the use of deep learning algorithms to learn from sequential data on genes and metabolites, allowing the automatic prediction of gene deletion strategies for growth-coupled production in a data-driven manner.
+
 DeepGDel consists of three neural network-based modules: (1) **Meta-M**, which sets up a metabolite representation learning task to learn the characteristics of metabolites in the metabolic model; (2) **Gene-M**, which sets up a gene representation learning task to learn the characteristics of genes in the metabolic model; and (3) **Pred-M**, which integrates the latent representations of metabolite and gene characteristics in a pairwise manner to predict gene deletion states and outputs the final gene deletion strategy.
 
 DeepGDel Framework Overview|
