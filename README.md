@@ -155,13 +155,14 @@ Visualization of Representations (e_coli_core)|
 
 ## Precision-Recall Curve Across Three Metabolic Models
 
-The plot below shows the Precision-Recall (PR) curves for the DeepGDel model evaluated on three genome-scale metabolic models (*e_coli_core*, *iMM904*, and *iML1515*).
+The plot below shows the Precision-Recall curves for the DeepGDel model evaluated on three genome-scale metabolic models (*e_coli_core*, *iMM904*, and *iML1515*).
 
-A horizontal dashed line indicates the minimal precision, equal to the positive class ratio in each dataset.
+The dark blue curve shows how precision changes with increasing recall, as predicted by DeepGDel.
+A horizontal gray dashed line indicates the minimal precision, which equals the positive class ratio in each metabolic model dataset.
 
 | Precision-Recall Curve |
 |:-------------------------------:|
-| <img width="1000" alt="image" src="https://github.com/MetNetComp/DeepGDel/blob/main/feature.png">
+| <img width="1000" alt="image" src="https://github.com/MetNetComp/DeepGDel/blob/main/PR.png">
 
 ## Complementary: Learning Model Training and Ablations
 
